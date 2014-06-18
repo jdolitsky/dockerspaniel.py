@@ -1,4 +1,5 @@
 from __future__ import print_function
+import six
 import copy
 import json
 import os
@@ -18,7 +19,7 @@ def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
     if spaniel.get('from'):
         contents.append('FROM '+spaniel['from'])
 
-    if isinstance(tags, basestring):
+    if isinstance(tags, six.string_types):
         tags = [tags] 
 
     if spaniel.get('maintainer'):
