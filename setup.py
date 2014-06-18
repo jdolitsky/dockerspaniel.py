@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 
+import os
 from distutils.core import setup
 
-with open('requirements.txt') as f:
+r_txt = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'requirements.txt')
+
+with open(r_txt) as f:
     required = f.read().splitlines()
 
 setup(name='dockerspaniel',
-      version='0.1.0',
+      version='0.1.1',
       description='Create Dockerfiles from JSON',
       author='Josh Dolitsky',
       author_email='jdolitsky@gmail.com',
