@@ -2,15 +2,20 @@ from __future__ import print_function
 import copy
 import json
 import os
+import sys
+import inspect
 
+CALLER_DIR = os.path.dirname(inspect.getfile(sys._getframe(1)))
+if sys.argv[0].endswith('nosetests'):
+    CALLER_DIR = os.path.dirname(os.path.realpath(__file__))+'/test'
 
 def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
     contents = []
 
-    if not is_child and not spaniel['from']:
+    if not is_child and not spaniel.get('from'):
         raise Exception('\'from\' attribute does not exist.')
 
-    if spaniel['from']:
+    if spaniel.get('from'):
         contents.append('FROM '+spaniel['from'])
 
     if isinstance(tags, basestring):
@@ -64,7 +69,12 @@ def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
 
 def createDockerfile(options={}):
     input_file = 'Spanielfile'
+    if options.get('input'):
+        input_file = os.path.join(CALLER_DIR, options['input'])
+
     output_file = 'Dockerfile'
+    if options.get('output'):
+        output_file = os.path.join(CALLER_DIR, options['output'])
 
     with open(input_file) as json_file:
         spaniel = json.load(json_file)
@@ -73,5 +83,4 @@ def createDockerfile(options={}):
     f = open(output_file, 'w')
     print(contents, file=f)
 
-    print(output_file + ' saved successfully.')
     return 1
