@@ -10,6 +10,10 @@ CALLER_DIR = os.path.dirname(inspect.getfile(sys._getframe(1)))
 if sys.argv[0].endswith('nosetests'):
     CALLER_DIR = os.path.dirname(os.path.realpath(__file__))+'/test'
 
+file_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
+with open(file_dir+'/../defaults.json') as defaults_raw:
+    DEFAULTS = json.load(defaults_raw)
+
 def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
     contents = []
 
@@ -20,21 +24,21 @@ def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
         contents.append('FROM '+spaniel['from'])
 
     if isinstance(tags, six.string_types):
-        tags = [tags] 
+        tags = [tags]
 
     if spaniel.get('maintainer'):
         contents.append('MAINTAINER '+spaniel['maintainer'])
 
+    if not spaniel.get('steps'):
+        return "\n".join(contents)
+
     data = {}
     if spaniel.get('defaults'):
         data = copy.deepcopy(spaniel['defaults'])
-    
+
     for key in os.environ.keys():
         if len(key) > 3 and key[:3] == 'DS_':
             data[key[3:].lower()] = os.environ[key]
-
-    if not spaniel.get('steps'):
-        return "\n".join(contents)
 
     for step in spaniel['steps']:
         if step.get('unless'):
@@ -57,7 +61,7 @@ def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
 
         if step.get('comment') or step.get('newline'):
             contents.append('')
-        
+
         if step.get('comment'):
             contents.append('# '+step['comment'])
 
@@ -69,11 +73,11 @@ def generateContents(spaniel, tags=[], is_child=False, root_dir=None):
 
 
 def createDockerfile(options={}):
-    input_file = 'Spanielfile'
+    input_file = DEFAULTS['input_file']
     if options.get('input'):
         input_file = os.path.join(CALLER_DIR, options['input'])
 
-    output_file = 'Dockerfile'
+    output_file = DEFAULTS['output_file']
     if options.get('output'):
         output_file = os.path.join(CALLER_DIR, options['output'])
 
@@ -85,3 +89,6 @@ def createDockerfile(options={}):
     print(contents, file=f)
 
     return 1
+
+    if not spaniel.get('steps'):
+        return "\n".join(contents)
